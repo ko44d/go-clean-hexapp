@@ -1,13 +1,18 @@
 package router
 
 import (
-	"net/http"
+	"github.com/gin-gonic/gin"
 
-	"github.com/ko44d/go-clean-hexapp/internal/container"
+	"github.com/ko44d/go-clean-hexapp/internal/interface/handler"
 )
 
-func NewRouter(c *container.Container) http.Handler {
-	mux := http.NewServeMux()
+// NewRouter sets up the HTTP routing using Gin.
+func NewRouter(h handler.Handler) *gin.Engine {
+	r := gin.Default()
 
-	return mux
+	r.GET("/tasks", h.GetTasks)
+	r.POST("/tasks", h.AddTask)
+	r.POST("/tasks/complete", h.CompleteTask)
+
+	return r
 }

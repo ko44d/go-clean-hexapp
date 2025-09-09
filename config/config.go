@@ -25,7 +25,7 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
-	var cfg *Config
+	cfg := &Config{}
 
 	cfg.DB.Host = lookupEnv("POSTGRES_HOST", "localhost")
 	cfg.DB.Port = lookupEnvInt("POSTGRES_PORT", 5432)

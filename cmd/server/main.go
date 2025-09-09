@@ -11,22 +11,18 @@ import (
 )
 
 func main() {
-
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	c, err := container.NewContainer(cfg)
-	if err != nil {
-		log.Fatalf("failed to initialize container: %v", err)
-	}
+	c := container.New(cfg)
+	r := router.NewRouter(c.Handler)
 
-	r := router.NewRouter(c)
+	addr := fmt.Sprintf(":%d", cfg.HTTP.Port)
+	log.Printf("server starting at %s", addr)
 
-	port := fmt.Sprintf(":%s", cfg.HTTP.Port)
-	log.Printf("server starting on %s", port)
-	if err := http.ListenAndServe(port, r); err != nil {
-		log.Fatalf("failed to start server: %v", err)
+	if err := http.ListenAndServe(addr, r); err != nil {
+		log.Fatalf("server failed: %v", err)
 	}
 }
