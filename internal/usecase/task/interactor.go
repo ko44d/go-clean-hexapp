@@ -2,6 +2,8 @@ package task
 
 import (
 	"context"
+	"time"
+
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 )
 
@@ -32,5 +34,10 @@ func (i *interactor) AddTask(ctx context.Context, title string) error {
 }
 
 func (i *interactor) CompleteTask(ctx context.Context, id string) error {
-	return i.repo.Complete(ctx, id)
+	task, err := i.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	task.Complete(time.Now())
+	return i.repo.Update(ctx, task)
 }

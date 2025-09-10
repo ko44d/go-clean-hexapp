@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	FindAll(ctx context.Context) ([]*Task, error)
+	FindByID(ctx context.Context, id string) (*Task, error)
 	Create(ctx context.Context, task *Task) error
-	Complete(ctx context.Context, id string) error
+	Update(ctx context.Context, task *Task) error
 }

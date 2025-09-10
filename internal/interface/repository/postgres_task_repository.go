@@ -3,13 +3,32 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 )
 
 type postgresTaskRepository struct {
 	db *sql.DB
+}
+
+func (r *postgresTaskRepository) FindByID(ctx context.Context, id string) (*domain.Task, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT id, title, status, created_at, updated_at FROM tasks WHERE id = $1`, id)
+
+	var task domain.Task
+	err := row.Scan(&task.ID, &task.Title, &task.Status, &task.CreatedAt, &task.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, domain.ErrTaskNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &task, nil
+}
+
+func (r *postgresTaskRepository) Update(ctx context.Context, task *domain.Task) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE tasks SET title = $1, status = $2, updated_at = $3 WHERE id = $4`,
+		task.Title, task.Status, task.UpdatedAt, task.ID)
+	return err
 }
 
 func NewTaskRepository(db *sql.DB) domain.Repository {
@@ -40,22 +59,4 @@ func (r *postgresTaskRepository) Create(ctx context.Context, task *domain.Task) 
 		task.ID, task.Title, task.Status, task.CreatedAt, task.UpdatedAt,
 	)
 	return err
-}
-
-func (r *postgresTaskRepository) Complete(ctx context.Context, id string) error {
-	result, err := r.db.ExecContext(ctx,
-		`UPDATE tasks SET status = $1, updated_at = $2 WHERE id = $3`,
-		domain.StatusComplete, domain.Task{}.UpdatedAt, id,
-	)
-	if err != nil {
-		return err
-	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if affected == 0 {
-		return errors.New("task not found")
-	}
-	return nil
 }

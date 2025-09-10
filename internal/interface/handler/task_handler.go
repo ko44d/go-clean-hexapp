@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 	"github.com/ko44d/go-clean-hexapp/internal/usecase/task"
 )
 
@@ -40,7 +42,11 @@ func (h *taskHandler) AddTask(c *gin.Context) {
 		return
 	}
 	if err := h.usecase.AddTask(c.Request.Context(), req.Title); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add task"})
+		if errors.Is(err, domain.ErrInvalidTitle) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid title"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -53,7 +59,11 @@ func (h *taskHandler) CompleteTask(c *gin.Context) {
 		return
 	}
 	if err := h.usecase.CompleteTask(c.Request.Context(), id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to complete task"})
+		if errors.Is(err, domain.ErrTaskNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 	c.Status(http.StatusNoContent)

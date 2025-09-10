@@ -1,7 +1,6 @@
 package task
 
 import (
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,7 +23,7 @@ type Task struct {
 
 func NewTask(title string) (*Task, error) {
 	if title == "" {
-		return nil, errors.New("title must not be empty")
+		return nil, ErrInvalidTitle
 	}
 
 	now := time.Now()
@@ -38,7 +37,7 @@ func NewTask(title string) (*Task, error) {
 	}, nil
 }
 
-func (t *Task) Complete() {
+func (t *Task) Complete(now time.Time) {
 	t.Status = StatusComplete
-	t.UpdatedAt = time.Now()
+	t.UpdatedAt = now
 }
