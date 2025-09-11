@@ -6,7 +6,6 @@ import (
 	"github.com/ko44d/go-clean-hexapp/internal/interface/handler"
 )
 
-// NewRouter sets up the HTTP routing using Gin.
 func NewRouter(h handler.Handler) *gin.Engine {
 	r := gin.Default()
 
