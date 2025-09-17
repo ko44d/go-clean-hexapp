@@ -1,4 +1,23 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-clean-hexapp
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: clean-hexuser
+      POSTGRES_PASSWORD: clean-hexpass
+      POSTGRES_DB: clean-hexapp
+      POSTGRES_SSLMODE: disable
+      PORT: 8080
+    command: ./go-clean-hexapp
   db:
     image: postgres:16
     container_name: clean-hexapp-db
