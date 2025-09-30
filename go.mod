@@ -4,7 +4,6 @@ go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.10.1
-	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/onsi/ginkgo/v2 v2.25.3
