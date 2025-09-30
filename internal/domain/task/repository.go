@@ -1,4 +1,4 @@
-//go:generate mockgen -source=port.go -destination=mocks/mock_repository.go -package=mocks
+//go:generate mockgen -source=repository.go -destination=mocks/mock_repository.go -package=mocks
 
 package task
 
