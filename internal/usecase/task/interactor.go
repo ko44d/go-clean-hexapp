@@ -1,3 +1,5 @@
+//go:generate mockgen -source=interactor.go -destination=mocks/mock_interactor.go -package=mocks
+
 package task
 
 import (
