@@ -48,8 +48,9 @@ var _ = Describe("Task Domain", func() {
 
 		Context("when title is empty", func() {
 			It("should return ErrInvalidTitle", func() {
-				now := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
-				newTask, err := task.NewTask("task-1", "", now, now)
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				updatedAt := createdAt
+				newTask, err := task.NewTask("task-1", "", createdAt, updatedAt)
 
 				Expect(err).To(Equal(task.ErrInvalidTitle))
 				Expect(newTask).To(BeNil())
@@ -60,45 +61,51 @@ var _ = Describe("Task Domain", func() {
 	Describe("Complete", func() {
 		Context("when task is in todo status", func() {
 			It("should change status to complete and update timestamp", func() {
-				baseTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
-				testTask, _ := task.NewTask("task-1", "Test Task", baseTime, baseTime)
-				originalUpdatedAt := testTask.UpdatedAt
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				initialUpdatedAt := createdAt.Add(1 * time.Minute)
+				completedAt := createdAt.Add(2 * time.Minute)
+				testTask, _ := task.NewTask("task-1", "Test Task", createdAt, initialUpdatedAt)
 
-				now := baseTime.Add(10 * time.Millisecond)
-				testTask.Complete(now)
+				testTask.Complete(completedAt)
 
 				Expect(testTask.Status).To(Equal(task.StatusComplete))
-				Expect(testTask.UpdatedAt).To(Equal(now))
-				Expect(testTask.UpdatedAt).To(BeTemporally(">", originalUpdatedAt))
+				Expect(testTask.CreatedAt).To(Equal(createdAt))
+				Expect(testTask.UpdatedAt).To(Equal(completedAt))
+				Expect(testTask.UpdatedAt).To(BeTemporally(">", initialUpdatedAt))
 			})
 		})
 
 		Context("when task is already complete", func() {
 			It("should update the timestamp even if already complete", func() {
-				baseTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
-				testTask, _ := task.NewTask("task-1", "Test Task", baseTime, baseTime)
-				firstCompleteTime := baseTime.Add(10 * time.Millisecond)
-				testTask.Complete(firstCompleteTime)
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				initialUpdatedAt := createdAt.Add(1 * time.Minute)
+				firstCompletedAt := createdAt.Add(2 * time.Minute)
+				secondCompletedAt := createdAt.Add(3 * time.Minute)
+				testTask, _ := task.NewTask("task-1", "Test Task", createdAt, initialUpdatedAt)
 
-				secondCompleteTime := baseTime.Add(20 * time.Millisecond)
-				testTask.Complete(secondCompleteTime)
+				testTask.Complete(firstCompletedAt)
+				testTask.Complete(secondCompletedAt)
 
 				Expect(testTask.Status).To(Equal(task.StatusComplete))
-				Expect(testTask.UpdatedAt).To(Equal(secondCompleteTime))
-				Expect(testTask.UpdatedAt).To(BeTemporally(">", firstCompleteTime))
+				Expect(testTask.CreatedAt).To(Equal(createdAt))
+				Expect(testTask.UpdatedAt).To(Equal(secondCompletedAt))
+				Expect(testTask.UpdatedAt).To(BeTemporally(">", firstCompletedAt))
 			})
 		})
 
 		Context("when provided a specific time", func() {
 			It("should use the provided time exactly", func() {
-				baseTime := time.Date(2025, 9, 30, 11, 0, 0, 0, time.UTC)
-				testTask, _ := task.NewTask("task-1", "Test Task", baseTime, baseTime)
+				createdAt := time.Date(2025, 9, 30, 11, 0, 0, 0, time.UTC)
+				initialUpdatedAt := createdAt.Add(30 * time.Minute)
 				specificTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				testTask, _ := task.NewTask("task-1", "Test Task", createdAt, initialUpdatedAt)
 
 				testTask.Complete(specificTime)
 
 				Expect(testTask.Status).To(Equal(task.StatusComplete))
+				Expect(testTask.CreatedAt).To(Equal(createdAt))
 				Expect(testTask.UpdatedAt).To(Equal(specificTime))
+				Expect(testTask.UpdatedAt).To(BeTemporally(">", testTask.CreatedAt))
 			})
 		})
 	})
