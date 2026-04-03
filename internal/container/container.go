@@ -15,7 +15,7 @@ type Container struct {
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
-	dbpool, err := db.NewDBPool(cfg.GetDSN())
+	dbpool, err := db.NewDB(cfg.GetDSN())
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
