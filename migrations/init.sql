@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
     description TEXT,
-    status TEXT NOT NULL CHECK (status IN ('todo', 'in_progress', 'done')),
+    status TEXT NOT NULL CHECK (status IN ('todo', 'complete')),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
     );
