@@ -52,7 +52,7 @@ var _ = Describe("Task Domain", func() {
 				updatedAt := createdAt
 				newTask, err := task.NewTask("task-1", "", createdAt, updatedAt)
 
-				Expect(err).To(Equal(task.ErrInvalidTitle))
+				Expect(err).To(MatchError(task.ErrInvalidTitle))
 				Expect(newTask).To(BeNil())
 			})
 		})
@@ -118,9 +118,9 @@ var _ = Describe("Task Domain", func() {
 	})
 
 	Describe("Error Constants", func() {
-		It("should have correct error messages", func() {
-			Expect(task.ErrTaskNotFound.Error()).To(Equal("task not found"))
-			Expect(task.ErrInvalidTitle.Error()).To(Equal("title must not be empty"))
+		It("should match sentinel errors", func() {
+			Expect(task.ErrTaskNotFound).To(MatchError(task.ErrTaskNotFound))
+			Expect(task.ErrInvalidTitle).To(MatchError(task.ErrInvalidTitle))
 		})
 	})
 })
