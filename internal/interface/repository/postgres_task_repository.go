@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 )
@@ -20,7 +21,7 @@ func (r *postgresTaskRepository) FindByID(ctx context.Context, id string) (*doma
 		return nil, domain.ErrTaskNotFound
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("find task by id %q: %w", id, err)
 	}
 	return &task, nil
 }
@@ -29,12 +30,12 @@ func (r *postgresTaskRepository) Update(ctx context.Context, task *domain.Task) 
 	result, err := r.db.ExecContext(ctx, `UPDATE tasks SET title = $1, status = $2, updated_at = $3 WHERE id = $4`,
 		task.Title, task.Status, task.UpdatedAt, task.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("save task %q: %w", task.ID, err)
 	}
 
 	affectedRows, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return fmt.Errorf("save task %q: %w", task.ID, err)
 	}
 	if affectedRows == 0 {
 		return domain.ErrTaskNotFound
@@ -50,7 +51,7 @@ func NewTaskRepository(db *sql.DB) domain.Repository {
 func (r *postgresTaskRepository) FindAll(ctx context.Context) ([]*domain.Task, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT id, title, status, created_at, updated_at FROM tasks`)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list tasks: %w", err)
 	}
 	defer rows.Close()
 
@@ -58,12 +59,12 @@ func (r *postgresTaskRepository) FindAll(ctx context.Context) ([]*domain.Task, e
 	for rows.Next() {
 		t := &domain.Task{}
 		if err := rows.Scan(&t.ID, &t.Title, &t.Status, &t.CreatedAt, &t.UpdatedAt); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("list tasks: %w", err)
 		}
 		tasks = append(tasks, t)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list tasks: %w", err)
 	}
 	return tasks, nil
 }
@@ -73,5 +74,8 @@ func (r *postgresTaskRepository) Create(ctx context.Context, task *domain.Task) 
 		`INSERT INTO tasks (id, title, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)`,
 		task.ID, task.Title, task.Status, task.CreatedAt, task.UpdatedAt,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("save task %q: %w", task.ID, err)
+	}
+	return nil
 }

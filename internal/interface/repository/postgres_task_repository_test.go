@@ -81,7 +81,8 @@ var _ = Describe("postgresTaskRepository", func() {
 
 				err := repo.Update(ctx, testTask)
 
-				Expect(err).To(Equal(expectedErr))
+				Expect(err).To(MatchError(MatchRegexp("save task")))
+				Expect(errors.Is(err, expectedErr)).To(BeTrue())
 			})
 		})
 	})
