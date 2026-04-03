@@ -48,7 +48,10 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	cfg.DB.SSLMode = lookupEnv("POSTGRES_SSLMODE", "disable")
+	cfg.DB.SSLMode, err = lookupRequiredEnv("POSTGRES_SSLMODE")
+	if err != nil {
+		return nil, err
+	}
 
 	cfg.HTTP.Port = lookupEnvInt("PORT", 8080)
 

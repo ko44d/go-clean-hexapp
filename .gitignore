@@ -24,7 +24,7 @@ vendor/
 go.work
 go.work.sum
 
-# env file
+# env file for local/runtime credentials
 .env
 
 # Editor/IDE
