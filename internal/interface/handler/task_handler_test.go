@@ -174,6 +174,25 @@ var _ = Describe("Task Handler", func() {
 			})
 		})
 
+		Context("when title contains only whitespace", func() {
+			It("should return 400 with error message", func() {
+				requestBody := map[string]string{"title": "   "}
+				jsonBody, _ := json.Marshal(requestBody)
+
+				router.POST("/tasks", taskHandler.AddTask)
+				req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(jsonBody))
+				req.Header.Set("Content-Type", "application/json")
+				router.ServeHTTP(recorder, req)
+
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+
+				var response map[string]string
+				err := json.Unmarshal(recorder.Body.Bytes(), &response)
+				Expect(err).To(BeNil())
+				Expect(response["error"]).To(Equal("invalid request body"))
+			})
+		})
+
 		Context("when usecase returns invalid title error", func() {
 			It("should return 400 with error message", func() {
 				requestBody := map[string]string{"title": "Test Task"}
@@ -220,7 +239,7 @@ var _ = Describe("Task Handler", func() {
 	Describe("CompleteTask", func() {
 		Context("when task ID is provided and task exists", func() {
 			It("should return 200", func() {
-				taskID := "task-1"
+				taskID := "550e8400-e29b-41d4-a716-446655440000"
 
 				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(nil)
 
@@ -247,9 +266,24 @@ var _ = Describe("Task Handler", func() {
 			})
 		})
 
+		Context("when task ID is invalid UUID", func() {
+			It("should return 400 with error message", func() {
+				router.POST("/tasks/complete", taskHandler.CompleteTask)
+				req, _ := http.NewRequest("POST", "/tasks/complete?id=not-a-uuid", nil)
+				router.ServeHTTP(recorder, req)
+
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+
+				var response map[string]string
+				err := json.Unmarshal(recorder.Body.Bytes(), &response)
+				Expect(err).To(BeNil())
+				Expect(response["error"]).To(Equal("invalid id"))
+			})
+		})
+
 		Context("when task is not found", func() {
 			It("should return 404 with error message", func() {
-				taskID := "non-existent-id"
+				taskID := "550e8400-e29b-41d4-a716-446655440001"
 
 				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(domain.ErrTaskNotFound)
 
@@ -268,7 +302,7 @@ var _ = Describe("Task Handler", func() {
 
 		Context("when usecase returns internal error", func() {
 			It("should return 500 with error message", func() {
-				taskID := "task-1"
+				taskID := "550e8400-e29b-41d4-a716-446655440002"
 
 				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(errors.New("database error"))
 

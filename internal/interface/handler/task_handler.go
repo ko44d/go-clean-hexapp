@@ -3,9 +3,11 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 	"github.com/ko44d/go-clean-hexapp/internal/usecase/task"
 )
@@ -46,7 +48,7 @@ func (h *taskHandler) AddTask(c *gin.Context) {
 		Title string `json:"title"`
 	}
 	var req request
-	if err := c.ShouldBindJSON(&req); err != nil || req.Title == "" {
+	if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Title) == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
@@ -65,6 +67,10 @@ func (h *taskHandler) CompleteTask(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing id"})
+		return
+	}
+	if _, err := uuid.Parse(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 	if err := h.usecase.CompleteTask(c.Request.Context(), id); err != nil {
