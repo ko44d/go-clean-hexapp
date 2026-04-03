@@ -90,18 +90,20 @@ Use `go generate ./...` to regenerate all mocks at once after interface changes.
 
 ### Configuration
 
-All configuration is via environment variables (see `config/config.go`). Defaults match the Docker Compose setup:
+All configuration is via environment variables (see `config/config.go`).
 
 | Variable | Default |
 |---|---|
-| `POSTGRES_HOST` | `localhost` |
-| `POSTGRES_PORT` | `5432` |
-| `POSTGRES_USER` | `clean-hexuser` |
-| `POSTGRES_PASSWORD` | `clean-hexpass` |
-| `POSTGRES_DB` | `clean-hexapp` |
-| `POSTGRES_SSLMODE` | `disable` |
+| `POSTGRES_HOST` | `(required, no default)` |
+| `POSTGRES_PORT` | `(required, no default)` |
+| `POSTGRES_USER` | `(required, no default)` |
+| `POSTGRES_PASSWORD` | `(required, no default)` |
+| `POSTGRES_DB` | `(required, no default)` |
+| `POSTGRES_SSLMODE` | `(required, no default)` |
 | `PORT` | `8080` |
+
+Refer to `.env.example` for a ready-to-use local configuration template.
 
 ### Task Status Values
 
-Task status uses lowercase strings: `"todo"` and `"complete"`. Note: the DB schema (`migrations/init.sql`) also includes `"in_progress"` and `"done"` in its CHECK constraint, but the application code only uses `"todo"` and `"complete"`.
+Task status uses lowercase strings: `"todo"` and `"complete"`.
