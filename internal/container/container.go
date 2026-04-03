@@ -15,12 +15,12 @@ type Container struct {
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
-	dbpool, err := db.NewDB(cfg.GetDSN())
+	dbPool, err := db.NewDB(cfg.GetDSN())
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	repo := repository.NewTaskRepository(dbpool)
+	repo := repository.NewTaskRepository(dbPool)
 	usecase := task.NewInteractor(repo)
 	h := handler.NewHandler(usecase)
 

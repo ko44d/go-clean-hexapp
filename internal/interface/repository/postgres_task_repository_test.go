@@ -2,12 +2,13 @@ package repository
 
 import (
 	"context"
-	"database/sql"
-	"database/sql/driver"
 	"errors"
+	"strconv"
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -21,36 +22,22 @@ func TestPostgresTaskRepository(t *testing.T) {
 var _ = Describe("postgresTaskRepository", func() {
 	Describe("Update", func() {
 		var (
-			ctx        context.Context
-			repo       *postgresTaskRepository
-			testTask   *domain.Task
-			execState  *stubExecState
-			database   *sql.DB
-			closeDBErr error
+			ctx       context.Context
+			repo      *postgresTaskRepository
+			testTask  *domain.Task
+			execState *stubExecState
 		)
 
 		BeforeEach(func() {
 			ctx = context.Background()
 			execState = &stubExecState{}
-
-			var err error
-			database, err = openStubDB(execState)
-			Expect(err).NotTo(HaveOccurred())
-
-			repo = &postgresTaskRepository{db: database}
+			repo = &postgresTaskRepository{db: &stubQueryExecutor{execState: execState}}
 			testTask = &domain.Task{
 				ID:        "task-1",
 				Title:     "Test Task",
 				Status:    domain.StatusComplete,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
-			}
-		})
-
-		AfterEach(func() {
-			if database != nil {
-				closeDBErr = database.Close()
-				Expect(closeDBErr).NotTo(HaveOccurred())
 			}
 		})
 
@@ -93,49 +80,27 @@ type stubExecState struct {
 	execErr      error
 }
 
-type stubDriver struct {
+type stubQueryExecutor struct {
 	execState *stubExecState
 }
 
-type stubConn struct {
-	execState *stubExecState
-}
-
-func openStubDB(execState *stubExecState) (*sql.DB, error) {
-	return sql.OpenDB(&stubConnector{execState: execState}), nil
-}
-
-type stubConnector struct {
-	execState *stubExecState
-}
-
-func (c *stubConnector) Connect(context.Context) (driver.Conn, error) {
-	return &stubConn{execState: c.execState}, nil
-}
-
-func (c *stubConnector) Driver() driver.Driver {
-	return &stubDriver{execState: c.execState}
-}
-
-func (d *stubDriver) Open(string) (driver.Conn, error) {
-	return &stubConn{execState: d.execState}, nil
-}
-
-func (c *stubConn) Prepare(string) (driver.Stmt, error) {
-	return nil, errors.New("not implemented")
-}
-
-func (c *stubConn) Close() error {
-	return nil
-}
-
-func (c *stubConn) Begin() (driver.Tx, error) {
-	return nil, errors.New("not implemented")
-}
-
-func (c *stubConn) ExecContext(_ context.Context, _ string, _ []driver.NamedValue) (driver.Result, error) {
-	if c.execState.execErr != nil {
-		return nil, c.execState.execErr
+func (s *stubQueryExecutor) Exec(_ context.Context, _ string, _ ...any) (pgconn.CommandTag, error) {
+	if s.execState.execErr != nil {
+		return pgconn.CommandTag{}, s.execState.execErr
 	}
-	return driver.RowsAffected(c.execState.rowsAffected), nil
+	return pgconn.NewCommandTag("UPDATE " + strconv.FormatInt(s.execState.rowsAffected, 10)), nil
+}
+
+func (s *stubQueryExecutor) Query(context.Context, string, ...any) (pgx.Rows, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (s *stubQueryExecutor) QueryRow(context.Context, string, ...any) pgx.Row {
+	return stubRow{}
+}
+
+type stubRow struct{}
+
+func (stubRow) Scan(...any) error {
+	return errors.New("not implemented")
 }
