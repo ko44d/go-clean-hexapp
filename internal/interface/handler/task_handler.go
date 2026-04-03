@@ -3,11 +3,20 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 	"github.com/ko44d/go-clean-hexapp/internal/usecase/task"
 )
+
+type TaskResponse struct {
+	ID        string        `json:"id"`
+	Title     string        `json:"title"`
+	Status    domain.Status `json:"status"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+}
 
 type Handler interface {
 	GetTasks(c *gin.Context)
@@ -29,7 +38,7 @@ func (h *taskHandler) GetTasks(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get tasks"})
 		return
 	}
-	c.JSON(http.StatusOK, tasks)
+	c.JSON(http.StatusOK, toTaskResponses(tasks))
 }
 
 func (h *taskHandler) AddTask(c *gin.Context) {
@@ -67,4 +76,26 @@ func (h *taskHandler) CompleteTask(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusOK)
+}
+
+func toTaskResponses(tasks []*domain.Task) []TaskResponse {
+	responses := make([]TaskResponse, 0, len(tasks))
+	for _, task := range tasks {
+		responses = append(responses, toTaskResponse(task))
+	}
+	return responses
+}
+
+func toTaskResponse(task *domain.Task) TaskResponse {
+	if task == nil {
+		return TaskResponse{}
+	}
+
+	return TaskResponse{
+		ID:        task.ID,
+		Title:     task.Title,
+		Status:    task.Status,
+		CreatedAt: task.CreatedAt,
+		UpdatedAt: task.UpdatedAt,
+	}
 }

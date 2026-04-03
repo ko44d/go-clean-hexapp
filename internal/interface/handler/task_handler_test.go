@@ -74,12 +74,16 @@ var _ = Describe("Task Handler", func() {
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 
-				var response []*domain.Task
+				var response []handler.TaskResponse
 				err := json.Unmarshal(recorder.Body.Bytes(), &response)
 				Expect(err).To(BeNil())
 				Expect(response).To(HaveLen(2))
 				Expect(response[0].Title).To(Equal("Test Task 1"))
+				Expect(response[0].ID).To(Equal("task-1"))
+				Expect(response[0].Status).To(Equal(domain.StatusTodo))
 				Expect(response[1].Title).To(Equal("Test Task 2"))
+				Expect(response[1].ID).To(Equal("task-2"))
+				Expect(response[1].Status).To(Equal(domain.StatusComplete))
 			})
 		})
 
@@ -110,7 +114,7 @@ var _ = Describe("Task Handler", func() {
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 
-				var response []*domain.Task
+				var response []handler.TaskResponse
 				err := json.Unmarshal(recorder.Body.Bytes(), &response)
 				Expect(err).To(BeNil())
 				Expect(response).To(BeEmpty())
