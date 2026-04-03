@@ -26,9 +26,21 @@ func (r *postgresTaskRepository) FindByID(ctx context.Context, id string) (*doma
 }
 
 func (r *postgresTaskRepository) Update(ctx context.Context, task *domain.Task) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE tasks SET title = $1, status = $2, updated_at = $3 WHERE id = $4`,
+	result, err := r.db.ExecContext(ctx, `UPDATE tasks SET title = $1, status = $2, updated_at = $3 WHERE id = $4`,
 		task.Title, task.Status, task.UpdatedAt, task.ID)
-	return err
+	if err != nil {
+		return err
+	}
+
+	affectedRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affectedRows == 0 {
+		return domain.ErrTaskNotFound
+	}
+
+	return nil
 }
 
 func NewTaskRepository(db *sql.DB) domain.Repository {
