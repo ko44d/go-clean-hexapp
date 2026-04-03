@@ -14,8 +14,8 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 
-	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 	"github.com/ko44d/go-clean-hexapp/internal/interface/handler"
+	"github.com/ko44d/go-clean-hexapp/internal/usecase/task"
 	"github.com/ko44d/go-clean-hexapp/internal/usecase/task/mocks"
 )
 
@@ -49,18 +49,18 @@ var _ = Describe("Task Handler", func() {
 	Describe("GetTasks", func() {
 		Context("when tasks are retrieved successfully", func() {
 			It("should return 200 with tasks list", func() {
-				expectedTasks := []*domain.Task{
+				expectedTasks := []task.TaskOutput{
 					{
 						ID:        "task-1",
 						Title:     "Test Task 1",
-						Status:    domain.StatusTodo,
+						Status:    "todo",
 						CreatedAt: time.Now(),
 						UpdatedAt: time.Now(),
 					},
 					{
 						ID:        "task-2",
 						Title:     "Test Task 2",
-						Status:    domain.StatusComplete,
+						Status:    "complete",
 						CreatedAt: time.Now(),
 						UpdatedAt: time.Now(),
 					},
@@ -80,10 +80,10 @@ var _ = Describe("Task Handler", func() {
 				Expect(response).To(HaveLen(2))
 				Expect(response[0].Title).To(Equal("Test Task 1"))
 				Expect(response[0].ID).To(Equal("task-1"))
-				Expect(response[0].Status).To(Equal(domain.StatusTodo))
+				Expect(response[0].Status).To(Equal("todo"))
 				Expect(response[1].Title).To(Equal("Test Task 2"))
 				Expect(response[1].ID).To(Equal("task-2"))
-				Expect(response[1].Status).To(Equal(domain.StatusComplete))
+				Expect(response[1].Status).To(Equal("complete"))
 			})
 		})
 
@@ -106,7 +106,7 @@ var _ = Describe("Task Handler", func() {
 
 		Context("when there are no tasks", func() {
 			It("should return 200 with empty list", func() {
-				mockInteractor.EXPECT().GetTasks(gomock.Any()).Return([]*domain.Task{}, nil)
+				mockInteractor.EXPECT().GetTasks(gomock.Any()).Return([]task.TaskOutput{}, nil)
 
 				router.GET("/tasks", taskHandler.GetTasks)
 				req, _ := http.NewRequest("GET", "/tasks", nil)
@@ -198,7 +198,7 @@ var _ = Describe("Task Handler", func() {
 				requestBody := map[string]string{"title": "Test Task"}
 				jsonBody, _ := json.Marshal(requestBody)
 
-				mockInteractor.EXPECT().AddTask(gomock.Any(), "Test Task").Return(domain.ErrInvalidTitle)
+				mockInteractor.EXPECT().AddTask(gomock.Any(), "Test Task").Return(task.ErrInvalidTitle)
 
 				router.POST("/tasks", taskHandler.AddTask)
 				req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(jsonBody))
@@ -285,7 +285,7 @@ var _ = Describe("Task Handler", func() {
 			It("should return 404 with error message", func() {
 				taskID := "550e8400-e29b-41d4-a716-446655440001"
 
-				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(domain.ErrTaskNotFound)
+				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(task.ErrTaskNotFound)
 
 				router.POST("/tasks/complete", taskHandler.CompleteTask)
 				req, _ := http.NewRequest("POST", "/tasks/complete?id="+taskID, nil)

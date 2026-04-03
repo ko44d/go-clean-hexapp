@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	task "github.com/ko44d/go-clean-hexapp/internal/domain/task"
+	task "github.com/ko44d/go-clean-hexapp/internal/usecase/task"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -70,10 +70,10 @@ func (mr *MockInteractorMockRecorder) CompleteTask(ctx, id any) *gomock.Call {
 }
 
 // GetTasks mocks base method.
-func (m *MockInteractor) GetTasks(ctx context.Context) ([]*task.Task, error) {
+func (m *MockInteractor) GetTasks(ctx context.Context) ([]task.TaskOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTasks", ctx)
-	ret0, _ := ret[0].([]*task.Task)
+	ret0, _ := ret[0].([]task.TaskOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

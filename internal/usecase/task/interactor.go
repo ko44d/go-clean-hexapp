@@ -11,7 +11,7 @@ import (
 )
 
 type Interactor interface {
-	GetTasks(ctx context.Context) ([]*domain.Task, error)
+	GetTasks(ctx context.Context) ([]TaskOutput, error)
 	AddTask(ctx context.Context, title string) error
 	CompleteTask(ctx context.Context, id string) error
 }
@@ -24,8 +24,12 @@ func NewInteractor(repo domain.Repository) Interactor {
 	return &interactor{repo: repo}
 }
 
-func (i *interactor) GetTasks(ctx context.Context) ([]*domain.Task, error) {
-	return i.repo.FindAll(ctx)
+func (i *interactor) GetTasks(ctx context.Context) ([]TaskOutput, error) {
+	tasks, err := i.repo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return toTaskOutputs(tasks), nil
 }
 
 func (i *interactor) AddTask(ctx context.Context, title string) error {

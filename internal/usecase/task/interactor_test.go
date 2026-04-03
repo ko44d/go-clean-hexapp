@@ -42,7 +42,7 @@ var _ = Describe("Task Interactor", func() {
 	Describe("GetTasks", func() {
 		Context("when repository returns tasks successfully", func() {
 			It("should return all tasks", func() {
-				expectedTasks := []*domain.Task{
+				repositoryTasks := []*domain.Task{
 					{
 						ID:        "task-1",
 						Title:     "Test Task 1",
@@ -59,14 +59,18 @@ var _ = Describe("Task Interactor", func() {
 					},
 				}
 
-				mockRepo.EXPECT().FindAll(ctx).Return(expectedTasks, nil)
+				mockRepo.EXPECT().FindAll(ctx).Return(repositoryTasks, nil)
 
 				tasks, err := interactor.GetTasks(ctx)
 
 				Expect(err).To(BeNil())
 				Expect(tasks).To(HaveLen(2))
+				Expect(tasks[0].ID).To(Equal("task-1"))
 				Expect(tasks[0].Title).To(Equal("Test Task 1"))
+				Expect(tasks[0].Status).To(Equal("todo"))
+				Expect(tasks[1].ID).To(Equal("task-2"))
 				Expect(tasks[1].Title).To(Equal("Test Task 2"))
+				Expect(tasks[1].Status).To(Equal("complete"))
 			})
 		})
 

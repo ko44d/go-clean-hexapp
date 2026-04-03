@@ -8,16 +8,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 	"github.com/ko44d/go-clean-hexapp/internal/usecase/task"
 )
 
 type TaskResponse struct {
-	ID        string        `json:"id"`
-	Title     string        `json:"title"`
-	Status    domain.Status `json:"status"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
+	ID        string    `json:"id"`
+	Title     string    `json:"title"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type TaskHandler struct {
@@ -47,7 +46,7 @@ func (h *TaskHandler) AddTask(c *gin.Context) {
 		return
 	}
 	if err := h.usecase.AddTask(c.Request.Context(), req.Title); err != nil {
-		if errors.Is(err, domain.ErrInvalidTitle) {
+		if errors.Is(err, task.ErrInvalidTitle) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid title"})
 			return
 		}
@@ -68,7 +67,7 @@ func (h *TaskHandler) CompleteTask(c *gin.Context) {
 		return
 	}
 	if err := h.usecase.CompleteTask(c.Request.Context(), id); err != nil {
-		if errors.Is(err, domain.ErrTaskNotFound) {
+		if errors.Is(err, task.ErrTaskNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
 			return
 		}
@@ -78,24 +77,20 @@ func (h *TaskHandler) CompleteTask(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func toTaskResponses(tasks []*domain.Task) []TaskResponse {
+func toTaskResponses(tasks []task.TaskOutput) []TaskResponse {
 	responses := make([]TaskResponse, 0, len(tasks))
-	for _, task := range tasks {
-		responses = append(responses, toTaskResponse(task))
+	for _, taskOutput := range tasks {
+		responses = append(responses, toTaskResponse(taskOutput))
 	}
 	return responses
 }
 
-func toTaskResponse(task *domain.Task) TaskResponse {
-	if task == nil {
-		return TaskResponse{}
-	}
-
+func toTaskResponse(taskOutput task.TaskOutput) TaskResponse {
 	return TaskResponse{
-		ID:        task.ID,
-		Title:     task.Title,
-		Status:    task.Status,
-		CreatedAt: task.CreatedAt,
-		UpdatedAt: task.UpdatedAt,
+		ID:        taskOutput.ID,
+		Title:     taskOutput.Title,
+		Status:    taskOutput.Status,
+		CreatedAt: taskOutput.CreatedAt,
+		UpdatedAt: taskOutput.UpdatedAt,
 	}
 }
