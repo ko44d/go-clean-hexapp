@@ -215,23 +215,23 @@ var _ = Describe("Task Handler", func() {
 
 	Describe("CompleteTask", func() {
 		Context("when task ID is provided and task exists", func() {
-			It("should return 204", func() {
+			It("should return 200", func() {
 				taskID := "task-1"
 
 				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(nil)
 
-				router.PUT("/tasks/complete", taskHandler.CompleteTask)
-				req, _ := http.NewRequest("PUT", "/tasks/complete?id="+taskID, nil)
+				router.POST("/tasks/complete", taskHandler.CompleteTask)
+				req, _ := http.NewRequest("POST", "/tasks/complete?id="+taskID, nil)
 				router.ServeHTTP(recorder, req)
 
-				Expect(recorder.Code).To(Equal(http.StatusNoContent))
+				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
 		})
 
 		Context("when task ID is missing", func() {
 			It("should return 400 with error message", func() {
-				router.PUT("/tasks/complete", taskHandler.CompleteTask)
-				req, _ := http.NewRequest("PUT", "/tasks/complete", nil)
+				router.POST("/tasks/complete", taskHandler.CompleteTask)
+				req, _ := http.NewRequest("POST", "/tasks/complete", nil)
 				router.ServeHTTP(recorder, req)
 
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
@@ -249,8 +249,8 @@ var _ = Describe("Task Handler", func() {
 
 				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(domain.ErrTaskNotFound)
 
-				router.PUT("/tasks/complete", taskHandler.CompleteTask)
-				req, _ := http.NewRequest("PUT", "/tasks/complete?id="+taskID, nil)
+				router.POST("/tasks/complete", taskHandler.CompleteTask)
+				req, _ := http.NewRequest("POST", "/tasks/complete?id="+taskID, nil)
 				router.ServeHTTP(recorder, req)
 
 				Expect(recorder.Code).To(Equal(http.StatusNotFound))
@@ -268,8 +268,8 @@ var _ = Describe("Task Handler", func() {
 
 				mockInteractor.EXPECT().CompleteTask(gomock.Any(), taskID).Return(errors.New("database error"))
 
-				router.PUT("/tasks/complete", taskHandler.CompleteTask)
-				req, _ := http.NewRequest("PUT", "/tasks/complete?id="+taskID, nil)
+				router.POST("/tasks/complete", taskHandler.CompleteTask)
+				req, _ := http.NewRequest("POST", "/tasks/complete?id="+taskID, nil)
 				router.ServeHTTP(recorder, req)
 
 				Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
