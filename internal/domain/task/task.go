@@ -1,10 +1,6 @@
 package task
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 type Status string
 
@@ -21,19 +17,17 @@ type Task struct {
 	UpdatedAt time.Time
 }
 
-func NewTask(title string) (*Task, error) {
+func NewTask(id string, title string, createdAt time.Time, updatedAt time.Time) (*Task, error) {
 	if title == "" {
 		return nil, ErrInvalidTitle
 	}
 
-	now := time.Now()
-
 	return &Task{
-		ID:        uuid.NewString(),
+		ID:        id,
 		Title:     title,
 		Status:    StatusTodo,
-		CreatedAt: now,
-		UpdatedAt: now,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
 	}, nil
 }
 

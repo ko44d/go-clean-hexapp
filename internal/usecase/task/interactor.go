@@ -6,6 +6,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	domain "github.com/ko44d/go-clean-hexapp/internal/domain/task"
 )
 
@@ -28,7 +29,8 @@ func (i *interactor) GetTasks(ctx context.Context) ([]*domain.Task, error) {
 }
 
 func (i *interactor) AddTask(ctx context.Context, title string) error {
-	task, err := domain.NewTask(title)
+	now := time.Now()
+	task, err := domain.NewTask(uuid.New().String(), title, now, now)
 	if err != nil {
 		return err
 	}

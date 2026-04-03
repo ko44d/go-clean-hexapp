@@ -19,22 +19,26 @@ var _ = Describe("Task Domain", func() {
 	Describe("NewTask", func() {
 		Context("when title is valid", func() {
 			It("should create a new task with default values", func() {
+				taskID := "task-1"
 				title := "Test Task"
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				updatedAt := createdAt.Add(5 * time.Minute)
 
-				newTask, err := task.NewTask(title)
+				newTask, err := task.NewTask(taskID, title, createdAt, updatedAt)
 
 				Expect(err).To(BeNil())
 				Expect(newTask).NotTo(BeNil())
+				Expect(newTask.ID).To(Equal(taskID))
 				Expect(newTask.Title).To(Equal(title))
 				Expect(newTask.Status).To(Equal(task.StatusTodo))
-				Expect(newTask.ID).NotTo(BeEmpty())
-				Expect(newTask.CreatedAt).To(BeTemporally("~", time.Now(), time.Second))
-				Expect(newTask.UpdatedAt).To(BeTemporally("~", time.Now(), time.Second))
+				Expect(newTask.CreatedAt).To(Equal(createdAt))
+				Expect(newTask.UpdatedAt).To(Equal(updatedAt))
 			})
 
-			It("should generate unique IDs for different tasks", func() {
-				task1, err1 := task.NewTask("Task 1")
-				task2, err2 := task.NewTask("Task 2")
+			It("should preserve the provided IDs for different tasks", func() {
+				baseTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				task1, err1 := task.NewTask("task-1", "Task 1", baseTime, baseTime)
+				task2, err2 := task.NewTask("task-2", "Task 2", baseTime, baseTime)
 
 				Expect(err1).To(BeNil())
 				Expect(err2).To(BeNil())
@@ -44,7 +48,8 @@ var _ = Describe("Task Domain", func() {
 
 		Context("when title is empty", func() {
 			It("should return ErrInvalidTitle", func() {
-				newTask, err := task.NewTask("")
+				now := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				newTask, err := task.NewTask("task-1", "", now, now)
 
 				Expect(err).To(Equal(task.ErrInvalidTitle))
 				Expect(newTask).To(BeNil())
@@ -55,11 +60,11 @@ var _ = Describe("Task Domain", func() {
 	Describe("Complete", func() {
 		Context("when task is in todo status", func() {
 			It("should change status to complete and update timestamp", func() {
-				testTask, _ := task.NewTask("Test Task")
+				baseTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				testTask, _ := task.NewTask("task-1", "Test Task", baseTime, baseTime)
 				originalUpdatedAt := testTask.UpdatedAt
-				time.Sleep(10 * time.Millisecond) // Small delay to ensure timestamp difference
 
-				now := time.Now()
+				now := baseTime.Add(10 * time.Millisecond)
 				testTask.Complete(now)
 
 				Expect(testTask.Status).To(Equal(task.StatusComplete))
@@ -70,12 +75,12 @@ var _ = Describe("Task Domain", func() {
 
 		Context("when task is already complete", func() {
 			It("should update the timestamp even if already complete", func() {
-				testTask, _ := task.NewTask("Test Task")
-				firstCompleteTime := time.Now()
+				baseTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				testTask, _ := task.NewTask("task-1", "Test Task", baseTime, baseTime)
+				firstCompleteTime := baseTime.Add(10 * time.Millisecond)
 				testTask.Complete(firstCompleteTime)
 
-				time.Sleep(10 * time.Millisecond)
-				secondCompleteTime := time.Now()
+				secondCompleteTime := baseTime.Add(20 * time.Millisecond)
 				testTask.Complete(secondCompleteTime)
 
 				Expect(testTask.Status).To(Equal(task.StatusComplete))
@@ -86,7 +91,8 @@ var _ = Describe("Task Domain", func() {
 
 		Context("when provided a specific time", func() {
 			It("should use the provided time exactly", func() {
-				testTask, _ := task.NewTask("Test Task")
+				baseTime := time.Date(2025, 9, 30, 11, 0, 0, 0, time.UTC)
+				testTask, _ := task.NewTask("task-1", "Test Task", baseTime, baseTime)
 				specificTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
 
 				testTask.Complete(specificTime)
