@@ -28,7 +28,7 @@ var _ = Describe("Task Handler", func() {
 	var (
 		ctrl           *gomock.Controller
 		mockInteractor *mocks.MockInteractor
-		taskHandler    handler.Handler
+		taskHandler    *handler.TaskHandler
 		router         *gin.Engine
 		recorder       *httptest.ResponseRecorder
 	)

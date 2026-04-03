@@ -11,7 +11,7 @@ import (
 )
 
 type Container struct {
-	Handler handler.Handler
+	Handler *handler.TaskHandler
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {

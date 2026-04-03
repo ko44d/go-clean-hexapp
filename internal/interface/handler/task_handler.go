@@ -20,21 +20,15 @@ type TaskResponse struct {
 	UpdatedAt time.Time     `json:"updated_at"`
 }
 
-type Handler interface {
-	GetTasks(c *gin.Context)
-	AddTask(c *gin.Context)
-	CompleteTask(c *gin.Context)
-}
-
-type taskHandler struct {
+type TaskHandler struct {
 	usecase task.Interactor
 }
 
-func NewHandler(usecase task.Interactor) Handler {
-	return &taskHandler{usecase: usecase}
+func NewHandler(usecase task.Interactor) *TaskHandler {
+	return &TaskHandler{usecase: usecase}
 }
 
-func (h *taskHandler) GetTasks(c *gin.Context) {
+func (h *TaskHandler) GetTasks(c *gin.Context) {
 	tasks, err := h.usecase.GetTasks(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get tasks"})
@@ -43,7 +37,7 @@ func (h *taskHandler) GetTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, toTaskResponses(tasks))
 }
 
-func (h *taskHandler) AddTask(c *gin.Context) {
+func (h *TaskHandler) AddTask(c *gin.Context) {
 	type request struct {
 		Title string `json:"title"`
 	}
@@ -63,7 +57,7 @@ func (h *taskHandler) AddTask(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (h *taskHandler) CompleteTask(c *gin.Context) {
+func (h *TaskHandler) CompleteTask(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing id"})
