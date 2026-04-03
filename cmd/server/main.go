@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/ko44d/go-clean-hexapp/config"
 	"github.com/ko44d/go-clean-hexapp/internal/container"
@@ -25,7 +26,15 @@ func main() {
 	addr := fmt.Sprintf(":%d", cfg.HTTP.Port)
 	log.Printf("server starting at %s", addr)
 
-	if err := http.ListenAndServe(addr, r); err != nil {
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           r,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
