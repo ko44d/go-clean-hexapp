@@ -1,6 +1,9 @@
 package task
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Status string
 
@@ -20,6 +23,12 @@ type Task struct {
 func NewTask(id string, title string, createdAt time.Time, updatedAt time.Time) (*Task, error) {
 	if title == "" {
 		return nil, ErrInvalidTitle
+	}
+	if strings.TrimSpace(title) == "" {
+		return nil, ErrTitleBlank
+	}
+	if len(title) > 200 {
+		return nil, ErrTitleTooLong
 	}
 
 	return &Task{

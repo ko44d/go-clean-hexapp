@@ -1,6 +1,7 @@
 package task_test
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -53,6 +54,42 @@ var _ = Describe("Task Domain", func() {
 				newTask, err := task.NewTask("task-1", "", createdAt, updatedAt)
 
 				Expect(err).To(MatchError(task.ErrInvalidTitle))
+				Expect(newTask).To(BeNil())
+			})
+		})
+
+		Context("when title is whitespace only", func() {
+			It("should return ErrTitleBlank", func() {
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				updatedAt := createdAt
+				newTask, err := task.NewTask("task-1", "   ", createdAt, updatedAt)
+
+				Expect(err).To(MatchError(task.ErrTitleBlank))
+				Expect(newTask).To(BeNil())
+			})
+		})
+
+		Context("when title length is at the boundary", func() {
+			It("should create a task for a 200 character title", func() {
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				updatedAt := createdAt
+				title := strings.Repeat("a", 200)
+
+				newTask, err := task.NewTask("task-1", title, createdAt, updatedAt)
+
+				Expect(err).To(BeNil())
+				Expect(newTask).NotTo(BeNil())
+				Expect(newTask.Title).To(Equal(title))
+			})
+
+			It("should return ErrTitleTooLong for a 201 character title", func() {
+				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
+				updatedAt := createdAt
+				title := strings.Repeat("a", 201)
+
+				newTask, err := task.NewTask("task-1", title, createdAt, updatedAt)
+
+				Expect(err).To(MatchError(task.ErrTitleTooLong))
 				Expect(newTask).To(BeNil())
 			})
 		})
@@ -121,6 +158,8 @@ var _ = Describe("Task Domain", func() {
 		It("should match sentinel errors", func() {
 			Expect(task.ErrTaskNotFound).To(MatchError(task.ErrTaskNotFound))
 			Expect(task.ErrInvalidTitle).To(MatchError(task.ErrInvalidTitle))
+			Expect(task.ErrTitleBlank).To(MatchError(task.ErrTitleBlank))
+			Expect(task.ErrTitleTooLong).To(MatchError(task.ErrTitleTooLong))
 		})
 	})
 })
