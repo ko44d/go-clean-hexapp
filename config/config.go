@@ -26,12 +26,28 @@ type Config struct {
 
 func Load() (*Config, error) {
 	cfg := &Config{}
+	var err error
 
-	cfg.DB.Host = lookupEnv("POSTGRES_HOST", "localhost")
-	cfg.DB.Port = lookupEnvInt("POSTGRES_PORT", 5432)
-	cfg.DB.User = lookupEnv("POSTGRES_USER", "clean-hexuser")
-	cfg.DB.Password = lookupEnv("POSTGRES_PASSWORD", "clean-hexpass")
-	cfg.DB.Name = lookupEnv("POSTGRES_DB", "clean-hexapp")
+	cfg.DB.Host, err = lookupRequiredEnv("POSTGRES_HOST")
+	if err != nil {
+		return nil, err
+	}
+	cfg.DB.Port, err = lookupRequiredEnvInt("POSTGRES_PORT")
+	if err != nil {
+		return nil, err
+	}
+	cfg.DB.User, err = lookupRequiredEnv("POSTGRES_USER")
+	if err != nil {
+		return nil, err
+	}
+	cfg.DB.Password, err = lookupRequiredEnv("POSTGRES_PASSWORD")
+	if err != nil {
+		return nil, err
+	}
+	cfg.DB.Name, err = lookupRequiredEnv("POSTGRES_DB")
+	if err != nil {
+		return nil, err
+	}
 	cfg.DB.SSLMode = lookupEnv("POSTGRES_SSLMODE", "disable")
 
 	cfg.HTTP.Port = lookupEnvInt("PORT", 8080)
@@ -53,6 +69,15 @@ func lookupEnv(key string, fallback string) string {
 	return fallback
 }
 
+func lookupRequiredEnv(key string) (string, error) {
+	value, ok := os.LookupEnv(key)
+	if !ok || value == "" {
+		return "", fmt.Errorf("required environment variable %s is unset or empty", key)
+	}
+
+	return value, nil
+}
+
 func lookupEnvInt(key string, fallback int) int {
 	if v, ok := os.LookupEnv(key); ok {
 		if i, err := strconv.Atoi(v); err == nil {
@@ -60,4 +85,18 @@ func lookupEnvInt(key string, fallback int) int {
 		}
 	}
 	return fallback
+}
+
+func lookupRequiredEnvInt(key string) (int, error) {
+	value, err := lookupRequiredEnv(key)
+	if err != nil {
+		return 0, err
+	}
+
+	parsedValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, fmt.Errorf("required environment variable %s must be a valid integer: %w", key, err)
+	}
+
+	return parsedValue, nil
 }
