@@ -1,7 +1,7 @@
 package container
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/ko44d/go-clean-hexapp/config"
 	"github.com/ko44d/go-clean-hexapp/internal/infrastructure/db"
@@ -14,10 +14,10 @@ type Container struct {
 	Handler handler.Handler
 }
 
-func New(cfg *config.Config) *Container {
+func NewContainer(cfg *config.Config) (*Container, error) {
 	dbpool, err := db.NewDBPool(cfg.GetDSN())
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
 	repo := repository.NewTaskRepository(dbpool)
@@ -26,5 +26,5 @@ func New(cfg *config.Config) *Container {
 
 	return &Container{
 		Handler: h,
-	}
+	}, nil
 }
