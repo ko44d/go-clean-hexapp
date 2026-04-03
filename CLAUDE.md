@@ -26,6 +26,12 @@ go build -o go-clean-hexapp ./cmd/server
 docker-compose up
 ```
 
+## Definition of Done
+
+- `go test ./...`
+- `go build -o go-clean-hexapp ./cmd/server`
+- Commits are made in meaningful units.
+
 ## Architecture
 
 This project implements **Hexagonal Architecture (Ports & Adapters)** combined with Clean Architecture. Dependencies flow inward — outer layers depend on inner layers, never the reverse.
@@ -70,10 +76,11 @@ internal/infrastructure/db/     ← pgx connection pool
 
 Tests use **Ginkgo v2 + Gomega** (BDD style). Mocks are generated with `go.uber.org/mock/mockgen`.
 
-- `internal/domain/task/mocks/` — mock for `Repository` interface (used in usecase tests)
-- `internal/usecase/task/mocks/` — mock for `Interactor` interface (used in handler tests)
+Use `go generate ./...` to regenerate all mocks at once after interface changes.
 
-`go:generate` directives are on the interface source files (`repository.go`, `interactor.go`).
+- `go:generate` directives are defined on the interface source files: `internal/domain/task/repository.go` and `internal/usecase/task/interactor.go`
+- `internal/domain/task/mocks/` — generated mocks for the domain-layer `Repository` interface (used in usecase tests)
+- `internal/usecase/task/mocks/` — generated mocks for the usecase-layer `Interactor` interface (used in handler tests)
 
 ### API Endpoints
 
