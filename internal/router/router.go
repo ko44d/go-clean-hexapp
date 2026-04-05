@@ -6,7 +6,7 @@ import (
 	"github.com/ko44d/go-clean-hexapp/internal/interface/handler"
 )
 
-func NewRouter(taskHandler *handler.TaskHandler) *gin.Engine {
+func New(taskHandler *handler.TaskHandler) *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/tasks", taskHandler.GetTasks)

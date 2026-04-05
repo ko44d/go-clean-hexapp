@@ -31,7 +31,7 @@ var _ = Describe("Task Interactor", func() {
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		mockRepo = mocks.NewMockRepository(ctrl)
-		interactor = task.NewInteractor(mockRepo)
+		interactor = task.New(mockRepo)
 		ctx = context.Background()
 	})
 

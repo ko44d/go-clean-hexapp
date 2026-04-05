@@ -20,7 +20,7 @@ type interactor struct {
 	repo domain.Repository
 }
 
-func NewInteractor(repo domain.Repository) Interactor {
+func New(repo domain.Repository) Interactor {
 	return &interactor{repo: repo}
 }
 
@@ -34,7 +34,7 @@ func (i *interactor) GetTasks(ctx context.Context) ([]TaskOutput, error) {
 
 func (i *interactor) AddTask(ctx context.Context, title string) error {
 	now := time.Now()
-	task, err := domain.NewTask(uuid.New().String(), title, now, now)
+	task, err := domain.New(uuid.New().String(), title, now, now)
 	if err != nil {
 		return err
 	}

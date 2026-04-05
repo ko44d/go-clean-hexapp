@@ -20,7 +20,7 @@ type Task struct {
 	UpdatedAt time.Time
 }
 
-func NewTask(id string, title string, createdAt time.Time, updatedAt time.Time) (*Task, error) {
+func New(id string, title string, createdAt time.Time, updatedAt time.Time) (*Task, error) {
 	if title == "" {
 		return nil, ErrInvalidTitle
 	}

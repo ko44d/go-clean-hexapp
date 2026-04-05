@@ -22,7 +22,7 @@ type TaskHandler struct {
 	usecase task.Interactor
 }
 
-func NewHandler(usecase task.Interactor) *TaskHandler {
+func New(usecase task.Interactor) *TaskHandler {
 	return &TaskHandler{usecase: usecase}
 }
 

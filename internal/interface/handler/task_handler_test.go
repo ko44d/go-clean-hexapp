@@ -37,7 +37,7 @@ var _ = Describe("Task Handler", func() {
 		gin.SetMode(gin.TestMode)
 		ctrl = gomock.NewController(GinkgoT())
 		mockInteractor = mocks.NewMockInteractor(ctrl)
-		taskHandler = handler.NewHandler(mockInteractor)
+		taskHandler = handler.New(mockInteractor)
 		router = gin.New()
 		recorder = httptest.NewRecorder()
 	})

@@ -25,7 +25,7 @@ var _ = Describe("Task Domain", func() {
 				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
 				updatedAt := createdAt.Add(5 * time.Minute)
 
-				newTask, err := task.NewTask(taskID, title, createdAt, updatedAt)
+				newTask, err := task.New(taskID, title, createdAt, updatedAt)
 
 				Expect(err).To(BeNil())
 				Expect(newTask).NotTo(BeNil())
@@ -38,8 +38,8 @@ var _ = Describe("Task Domain", func() {
 
 			It("should preserve the provided IDs for different tasks", func() {
 				baseTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
-				task1, err1 := task.NewTask("task-1", "Task 1", baseTime, baseTime)
-				task2, err2 := task.NewTask("task-2", "Task 2", baseTime, baseTime)
+				task1, err1 := task.New("task-1", "Task 1", baseTime, baseTime)
+				task2, err2 := task.New("task-2", "Task 2", baseTime, baseTime)
 
 				Expect(err1).To(BeNil())
 				Expect(err2).To(BeNil())
@@ -51,7 +51,7 @@ var _ = Describe("Task Domain", func() {
 			It("should return ErrInvalidTitle", func() {
 				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
 				updatedAt := createdAt
-				newTask, err := task.NewTask("task-1", "", createdAt, updatedAt)
+				newTask, err := task.New("task-1", "", createdAt, updatedAt)
 
 				Expect(err).To(MatchError(task.ErrInvalidTitle))
 				Expect(newTask).To(BeNil())
@@ -62,7 +62,7 @@ var _ = Describe("Task Domain", func() {
 			It("should return ErrTitleBlank", func() {
 				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
 				updatedAt := createdAt
-				newTask, err := task.NewTask("task-1", "   ", createdAt, updatedAt)
+				newTask, err := task.New("task-1", "   ", createdAt, updatedAt)
 
 				Expect(err).To(MatchError(task.ErrTitleBlank))
 				Expect(newTask).To(BeNil())
@@ -75,7 +75,7 @@ var _ = Describe("Task Domain", func() {
 				updatedAt := createdAt
 				title := strings.Repeat("a", 200)
 
-				newTask, err := task.NewTask("task-1", title, createdAt, updatedAt)
+				newTask, err := task.New("task-1", title, createdAt, updatedAt)
 
 				Expect(err).To(BeNil())
 				Expect(newTask).NotTo(BeNil())
@@ -87,7 +87,7 @@ var _ = Describe("Task Domain", func() {
 				updatedAt := createdAt
 				title := strings.Repeat("a", 201)
 
-				newTask, err := task.NewTask("task-1", title, createdAt, updatedAt)
+				newTask, err := task.New("task-1", title, createdAt, updatedAt)
 
 				Expect(err).To(MatchError(task.ErrTitleTooLong))
 				Expect(newTask).To(BeNil())
@@ -101,7 +101,7 @@ var _ = Describe("Task Domain", func() {
 				createdAt := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
 				initialUpdatedAt := createdAt.Add(1 * time.Minute)
 				completedAt := createdAt.Add(2 * time.Minute)
-				testTask, _ := task.NewTask("task-1", "Test Task", createdAt, initialUpdatedAt)
+				testTask, _ := task.New("task-1", "Test Task", createdAt, initialUpdatedAt)
 
 				testTask.Complete(completedAt)
 
@@ -118,7 +118,7 @@ var _ = Describe("Task Domain", func() {
 				initialUpdatedAt := createdAt.Add(1 * time.Minute)
 				firstCompletedAt := createdAt.Add(2 * time.Minute)
 				secondCompletedAt := createdAt.Add(3 * time.Minute)
-				testTask, _ := task.NewTask("task-1", "Test Task", createdAt, initialUpdatedAt)
+				testTask, _ := task.New("task-1", "Test Task", createdAt, initialUpdatedAt)
 
 				testTask.Complete(firstCompletedAt)
 				testTask.Complete(secondCompletedAt)
@@ -135,7 +135,7 @@ var _ = Describe("Task Domain", func() {
 				createdAt := time.Date(2025, 9, 30, 11, 0, 0, 0, time.UTC)
 				initialUpdatedAt := createdAt.Add(30 * time.Minute)
 				specificTime := time.Date(2025, 9, 30, 12, 0, 0, 0, time.UTC)
-				testTask, _ := task.NewTask("task-1", "Test Task", createdAt, initialUpdatedAt)
+				testTask, _ := task.New("task-1", "Test Task", createdAt, initialUpdatedAt)
 
 				testTask.Complete(specificTime)
 

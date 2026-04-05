@@ -14,15 +14,15 @@ type Container struct {
 	Handler *handler.TaskHandler
 }
 
-func NewContainer(cfg *config.Config) (*Container, error) {
+func New(cfg *config.Config) (*Container, error) {
 	dbPool, err := db.NewDB(cfg.GetDSN())
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	repo := repository.NewTaskRepository(dbPool)
-	usecase := task.NewInteractor(repo)
-	h := handler.NewHandler(usecase)
+	repo := repository.New(dbPool)
+	usecase := task.New(repo)
+	h := handler.New(usecase)
 
 	return &Container{
 		Handler: h,

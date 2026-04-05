@@ -17,11 +17,11 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	c, err := container.NewContainer(cfg)
+	c, err := container.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	r := router.NewRouter(c.Handler)
+	r := router.New(c.Handler)
 
 	addr := fmt.Sprintf(":%d", cfg.HTTP.Port)
 	log.Printf("server starting at %s", addr)

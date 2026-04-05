@@ -48,7 +48,7 @@ func (r *postgresTaskRepository) Update(ctx context.Context, task *domain.Task) 
 	return nil
 }
 
-func NewTaskRepository(db *pgxpool.Pool) domain.Repository {
+func New(db *pgxpool.Pool) domain.Repository {
 	return &postgresTaskRepository{db: db}
 }
 
