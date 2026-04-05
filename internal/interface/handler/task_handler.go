@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -41,12 +40,12 @@ func (h *TaskHandler) AddTask(c *gin.Context) {
 		Title string `json:"title"`
 	}
 	var req request
-	if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Title) == "" {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 	if err := h.usecase.AddTask(c.Request.Context(), req.Title); err != nil {
-		if errors.Is(err, task.ErrInvalidTitle) {
+		if errors.Is(err, task.ErrInvalidTitle) || errors.Is(err, task.ErrTitleBlank) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid title"})
 			return
 		}

@@ -160,6 +160,8 @@ var _ = Describe("Task Handler", func() {
 				requestBody := map[string]string{"title": ""}
 				jsonBody, _ := json.Marshal(requestBody)
 
+				mockInteractor.EXPECT().AddTask(gomock.Any(), "").Return(task.ErrInvalidTitle)
+
 				router.POST("/tasks", taskHandler.AddTask)
 				req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(jsonBody))
 				req.Header.Set("Content-Type", "application/json")
@@ -170,7 +172,7 @@ var _ = Describe("Task Handler", func() {
 				var response map[string]string
 				err := json.Unmarshal(recorder.Body.Bytes(), &response)
 				Expect(err).To(BeNil())
-				Expect(response["error"]).To(Equal("invalid request body"))
+				Expect(response["error"]).To(Equal("invalid title"))
 			})
 		})
 
@@ -179,6 +181,8 @@ var _ = Describe("Task Handler", func() {
 				requestBody := map[string]string{"title": "   "}
 				jsonBody, _ := json.Marshal(requestBody)
 
+				mockInteractor.EXPECT().AddTask(gomock.Any(), "   ").Return(task.ErrTitleBlank)
+
 				router.POST("/tasks", taskHandler.AddTask)
 				req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(jsonBody))
 				req.Header.Set("Content-Type", "application/json")
@@ -189,7 +193,7 @@ var _ = Describe("Task Handler", func() {
 				var response map[string]string
 				err := json.Unmarshal(recorder.Body.Bytes(), &response)
 				Expect(err).To(BeNil())
-				Expect(response["error"]).To(Equal("invalid request body"))
+				Expect(response["error"]).To(Equal("invalid title"))
 			})
 		})
 
@@ -199,6 +203,27 @@ var _ = Describe("Task Handler", func() {
 				jsonBody, _ := json.Marshal(requestBody)
 
 				mockInteractor.EXPECT().AddTask(gomock.Any(), "Test Task").Return(task.ErrInvalidTitle)
+
+				router.POST("/tasks", taskHandler.AddTask)
+				req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(jsonBody))
+				req.Header.Set("Content-Type", "application/json")
+				router.ServeHTTP(recorder, req)
+
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+
+				var response map[string]string
+				err := json.Unmarshal(recorder.Body.Bytes(), &response)
+				Expect(err).To(BeNil())
+				Expect(response["error"]).To(Equal("invalid title"))
+			})
+		})
+
+		Context("when usecase returns blank title error", func() {
+			It("should return 400 with error message", func() {
+				requestBody := map[string]string{"title": "Test Task"}
+				jsonBody, _ := json.Marshal(requestBody)
+
+				mockInteractor.EXPECT().AddTask(gomock.Any(), "Test Task").Return(task.ErrTitleBlank)
 
 				router.POST("/tasks", taskHandler.AddTask)
 				req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(jsonBody))

@@ -125,6 +125,14 @@ var _ = Describe("Task Interactor", func() {
 			})
 		})
 
+		Context("when title contains only whitespace", func() {
+			It("should return blank title error", func() {
+				err := interactor.AddTask(ctx, "   ")
+
+				Expect(err).To(Equal(domain.ErrTitleBlank))
+			})
+		})
+
 		Context("when repository returns an error", func() {
 			It("should return the error", func() {
 				title := "New Task"
