@@ -65,6 +65,17 @@ internal/infrastructure/db/     ← pgx connection pool
 | Infrastructure | `internal/infrastructure/db/` | pgx connection pool |
 | Container | `internal/container/` | Manual dependency injection — wires everything together |
 
+## Coding Style
+
+Follow [Effective Go](https://go.dev/doc/effective_go) as the baseline coding style.
+Key conventions enforced in this project:
+- Name constructors `New()` rather than `NewFoo()` — the package name already provides context
+- Use abbreviated receiver names derived from the type (e.g., `t` for `*Task`); never use `this` or `self`
+- Define errors as sentinel values (`var ErrFoo = errors.New("...")`); never compare error strings
+- Wrap errors with `fmt.Errorf("context: %w", err)` so the failure site is always traceable
+- Define interfaces in the consuming package (e.g., `Repository` is defined in the domain layer and implemented by the infrastructure layer)
+- Package names are singular and lowercase (`task`, not `tasks`)
+
 ### Key Architectural Points
 
 - The `Repository` interface is **defined in the domain layer** (`internal/domain/task/repository.go`), not in the infrastructure layer. This is the core of hexagonal architecture — the domain owns the port.
