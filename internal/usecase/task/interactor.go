@@ -4,6 +4,7 @@ package task
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,7 +28,7 @@ func New(repo domain.Repository) Interactor {
 func (i *interactor) GetTasks(ctx context.Context) ([]TaskOutput, error) {
 	tasks, err := i.repo.FindAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetTasks: %w", err)
 	}
 	return toTaskOutputs(tasks), nil
 }
@@ -36,16 +37,30 @@ func (i *interactor) AddTask(ctx context.Context, title string) error {
 	now := time.Now()
 	task, err := domain.New(uuid.New().String(), title, now, now)
 	if err != nil {
-		return err
+		switch err {
+		case domain.ErrInvalidTitle, domain.ErrTitleBlank, domain.ErrTitleTooLong:
+			return err
+		default:
+			return fmt.Errorf("AddTask: %w", err)
+		}
 	}
-	return i.repo.Create(ctx, task)
+	if err := i.repo.Create(ctx, task); err != nil {
+		return fmt.Errorf("AddTask: %w", err)
+	}
+	return nil
 }
 
 func (i *interactor) CompleteTask(ctx context.Context, id string) error {
 	task, err := i.repo.FindByID(ctx, id)
 	if err != nil {
-		return err
+		if err == domain.ErrTaskNotFound {
+			return err
+		}
+		return fmt.Errorf("CompleteTask: %w", err)
 	}
 	task.Complete(time.Now())
-	return i.repo.Update(ctx, task)
+	if err := i.repo.Update(ctx, task); err != nil {
+		return fmt.Errorf("CompleteTask: %w", err)
+	}
+	return nil
 }

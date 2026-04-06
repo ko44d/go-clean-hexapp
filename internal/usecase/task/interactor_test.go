@@ -81,7 +81,7 @@ var _ = Describe("Task Interactor", func() {
 
 				tasks, err := interactor.GetTasks(ctx)
 
-				Expect(err).To(Equal(expectedError))
+				Expect(err).To(MatchError(expectedError))
 				Expect(tasks).To(BeNil())
 			})
 		})
@@ -141,7 +141,7 @@ var _ = Describe("Task Interactor", func() {
 
 				err := interactor.AddTask(ctx, title)
 
-				Expect(err).To(Equal(expectedError))
+				Expect(err).To(MatchError(expectedError))
 			})
 		})
 	})
@@ -192,7 +192,7 @@ var _ = Describe("Task Interactor", func() {
 
 				err := interactor.CompleteTask(ctx, taskID)
 
-				Expect(err).To(Equal(expectedError))
+				Expect(err).To(MatchError(expectedError))
 			})
 		})
 
@@ -213,7 +213,7 @@ var _ = Describe("Task Interactor", func() {
 
 				err := interactor.CompleteTask(ctx, taskID)
 
-				Expect(err).To(Equal(expectedError))
+				Expect(err).To(MatchError(expectedError))
 			})
 		})
 	})
