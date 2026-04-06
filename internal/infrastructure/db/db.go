@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewDB(dsn string) (*pgxpool.Pool, error) {
+func New(dsn string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open db pool: %w", err)
