@@ -30,27 +30,27 @@ func Load() (*Config, error) {
 
 	cfg.DB.Host, err = lookupRequiredEnv("POSTGRES_HOST")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("POSTGRES_HOST: %w", err)
 	}
 	cfg.DB.Port, err = lookupRequiredEnvInt("POSTGRES_PORT")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("POSTGRES_PORT: %w", err)
 	}
 	cfg.DB.User, err = lookupRequiredEnv("POSTGRES_USER")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("POSTGRES_USER: %w", err)
 	}
 	cfg.DB.Password, err = lookupRequiredEnv("POSTGRES_PASSWORD")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("POSTGRES_PASSWORD: %w", err)
 	}
 	cfg.DB.Name, err = lookupRequiredEnv("POSTGRES_DB")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("POSTGRES_DB: %w", err)
 	}
 	cfg.DB.SSLMode, err = lookupRequiredEnv("POSTGRES_SSLMODE")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("POSTGRES_SSLMODE: %w", err)
 	}
 
 	cfg.HTTP.Port = lookupEnvInt("PORT", 8080)
