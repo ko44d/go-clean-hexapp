@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Go + Hexagonal Architecture のテンプレートリポジトリ。新しいタスク機能を追加・修正するときは必ず `docs/DESIGN.md` でアーキテクチャを確認してから着手すること。
+Go template repository implementing Hexagonal Architecture. Before adding or modifying any feature, read `docs/DESIGN.md` to understand the architecture constraints.
 
 ## Commands
 
@@ -25,7 +25,7 @@ docker-compose up
 
 ## Definition of Done
 
-Before marking any task complete:
+Before marking any work complete:
 - `go test ./...` passes
 - `go build -o go-clean-hexapp ./cmd/server` succeeds
 - Commits are made in meaningful units
